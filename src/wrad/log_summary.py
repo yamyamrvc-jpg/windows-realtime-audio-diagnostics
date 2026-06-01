@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import io
 import json
 import re
 from dataclasses import asdict, dataclass, field
@@ -27,9 +29,17 @@ NUMERIC_KEYS = {
 BOOLEAN_KEYS = {
     "cache_enabled",
     "cache_warm",
-    "gpu_cache_enabled",
-    "model_cache_enabled",
 }
+
+CSV_FIELDS = [
+    "field",
+    "count",
+    "average",
+    "minimum",
+    "maximum",
+    "latest",
+    "value",
+]
 
 PAIR_RE = re.compile(r"(?P<key>[A-Za-z_][A-Za-z0-9_]*)\s*(?:=|:)\s*(?P<value>[^,\s]+)")
 
@@ -139,6 +149,39 @@ def summary_to_dict(summary: LogSummary) -> dict[str, Any]:
     return data
 
 
+def summary_to_csv(summary: LogSummary) -> str:
+    """Return a CSV representation of numeric metric stats and boolean flags."""
+
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=CSV_FIELDS, lineterminator="\n")
+    writer.writeheader()
+    for key, stats in summary.metrics.items():
+        writer.writerow(
+            {
+                "field": key,
+                "count": stats.count,
+                "average": stats.average,
+                "minimum": stats.minimum,
+                "maximum": stats.maximum,
+                "latest": stats.latest,
+                "value": "",
+            }
+        )
+    for key, value in summary.flags.items():
+        writer.writerow(
+            {
+                "field": key,
+                "count": "",
+                "average": "",
+                "minimum": "",
+                "maximum": "",
+                "latest": "",
+                "value": str(value).lower(),
+            }
+        )
+    return output.getvalue()
+
+
 def _print_text(summary: LogSummary) -> None:
     print(f"lines_seen: {summary.lines_seen}")
     print(f"records_parsed: {summary.records_parsed}")
@@ -159,6 +202,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Summarize generic realtime audio logs.")
     parser.add_argument("log_path", help="Path to a JSONL or text log file.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
+    parser.add_argument(
+        "--format",
+        choices=("text", "json", "csv"),
+        default="text",
+        help="Output format. Defaults to text.",
+    )
     return parser
 
 
@@ -166,8 +215,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_arg_parser()
     args = parser.parse_args(argv)
     summary = summarize_log_file(args.log_path)
-    if args.json:
+    output_format = "json" if args.json else args.format
+    if output_format == "json":
         print(json.dumps(summary_to_dict(summary), indent=2, sort_keys=True))
+    elif output_format == "csv":
+        print(summary_to_csv(summary), end="")
     else:
         _print_text(summary)
     return 0
