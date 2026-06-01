@@ -8,11 +8,10 @@ This project is a generic diagnostics toolkit for Windows realtime audio develop
 
 Please do not contribute:
 
-- Voice conversion code.
-- Model inference code.
-- GPU backend code.
-- Proprietary realtime engine internals.
-- Ring-buffer, de-click, or private scheduling algorithms copied from another project.
+- Application-specific audio processing engines.
+- Hardware acceleration backends.
+- Private realtime engine internals.
+- Scheduling or buffering algorithms copied from another project.
 - Logs or audio files containing private user data.
 
 ## Development
