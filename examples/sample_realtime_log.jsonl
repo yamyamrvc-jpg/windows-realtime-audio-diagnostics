@@ -1,0 +1,3 @@
+{"timestamp":"2026-06-01T00:00:00Z","avg_ms":3.8,"max_ms":5.4,"late_chunks":0,"output_underflows":0,"input_overflows":0,"callback_jitter_ms":0.6,"target_prefill_ms":40,"ring_fill_ms":42,"cache_enabled":true}
+{"timestamp":"2026-06-01T00:00:01Z","avg_ms":4.1,"max_ms":7.2,"late_chunks":0,"output_underflows":0,"input_overflows":0,"callback_jitter_ms":0.9,"target_prefill_ms":40,"ring_fill_ms":39,"cache_enabled":true}
+{"timestamp":"2026-06-01T00:00:02Z","avg_ms":5.7,"max_ms":15.8,"late_chunks":1,"output_underflows":1,"input_overflows":0,"callback_jitter_ms":3.4,"target_prefill_ms":40,"ring_fill_ms":18,"cache_enabled":true}
